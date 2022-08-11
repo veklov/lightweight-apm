@@ -1,0 +1,20 @@
+ext {
+    openTelemetryVersion = "1.15.0"
+    openTelemetryAlphaVersion = "1.15.0-alpha"
+    openTelemetryInstrumentationVersion = "1.15.0"
+}
+
+subprojects {
+    apply plugin: 'java'
+
+    group = "lightweight-apm"
+    version = "0.0.1-SNAPSHOT"
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        implementation platform("io.opentelemetry:opentelemetry-bom:${openTelemetryVersion}")
+    }
+}

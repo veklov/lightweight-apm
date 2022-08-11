@@ -1,0 +1,21 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '2.5.12'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+}
+
+description = 'OpenTelemetry Example for Java Agent'
+
+ext {
+    moduleName = "io.opentelemetry.examples.javagent"
+}
+
+bootRun {
+    mainClass.set 'io.opentelemetry.example.javagent.Application'
+}
+
+dependencies {
+    implementation("io.opentelemetry:opentelemetry-api")
+    implementation("io.opentelemetry:opentelemetry-extension-annotations")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+}

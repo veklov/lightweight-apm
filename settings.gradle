@@ -1,0 +1,5 @@
+rootProject.name = "lightweight-apm"
+
+include("javaagent-extension")
+include("example-service")
+include("test-client")

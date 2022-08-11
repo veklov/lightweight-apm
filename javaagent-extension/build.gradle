@@ -1,0 +1,42 @@
+plugins {
+    id 'java'
+    id 'de.undercouch.download' version '4.1.1'
+}
+
+description = 'OpenTelemetry Java Agent axtension to convert snaps to metrics'
+
+ext {
+    moduleName = "io.opentelemetry.apm"
+
+    deps = [
+            autoservice: dependencies.create(group: 'com.google.auto.service', name: 'auto-service', version: '1.0.1')
+    ]
+}
+
+jar {
+    dependsOn("downloadAgent")
+}
+
+// Download the OpenTelemetry java agent and put it in the build directory
+task downloadAgent(type: Download) {
+    src "https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v${openTelemetryInstrumentationVersion}/opentelemetry-javaagent.jar"
+    dest project.buildDir.toString() + "/otel/opentelemetry-javaagent.jar"
+    overwrite false
+}
+
+dependencies {
+    //implementation("io.opentelemetry:opentelemetry-api:${openTelemetryVersion}")
+    //implementation("io.opentelemetry:opentelemetry-extension-annotations:${openTelemetryVersion}")
+
+    /*
+    Interfaces and SPIs that we implement. We use `compileOnly` dependency because during
+    runtime all necessary classes are provided by javaagent itself.
+     */
+    compileOnly("io.opentelemetry:opentelemetry-sdk-extension-autoconfigure-spi:${openTelemetryVersion}")
+    compileOnly("io.opentelemetry.instrumentation:opentelemetry-instrumentation-api:${openTelemetryAlphaVersion}")
+    compileOnly("io.opentelemetry.javaagent:opentelemetry-javaagent-extension-api:${openTelemetryAlphaVersion}")
+
+    //Provides @AutoService annotation that makes registration of our SPI implementations much easier
+    compileOnly deps.autoservice
+    annotationProcessor deps.autoservice
+}

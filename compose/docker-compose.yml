@@ -1,0 +1,43 @@
+version: '3'
+services:
+  app:
+    container_name: app
+    image: eclipse-temurin:17-jre
+    environment:
+      OTEL_SERVICE_NAME: "agent-example-app"
+      OTEL_TRACES_EXPORTER: "none"
+      OTEL_METRICS_EXPORTER: "prometheus"
+    volumes:
+      - ../example-service/build/libs/example-service-0.0.1-SNAPSHOT.jar:/app.jar
+      - ../javaagent-extension/build/otel/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
+      - ../javaagent-extension/build/libs/javaagent-extension-0.0.1-SNAPSHOT.jar:/javaagent-extension.jar
+    entrypoint: java -jar -javaagent:/opentelemetry-javaagent.jar -Dotel.javaagent.extensions=/javaagent-extension.jar app.jar
+    ports:
+      - "8080:8080"
+      - "9464:9464"
+  client:
+    container_name: client
+    image: eclipse-temurin:17-jre
+    environment:
+      APP_PORT: 8080
+    volumes:
+      - ../test-client/build/libs/test-client-0.0.1-SNAPSHOT.jar:/app.jar
+    entrypoint: java -jar app.jar
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+  grafana:
+    container_name: grafana
+    image: grafana/grafana-oss:latest
+    volumes:
+      - ./grafana.ini:/etc/grafana/grafana.ini
+      - ./grafana-datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
+      - ./grafana-dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
+      - ./grafana-board-top-transactions.json:/var/lib/grafana/dashboards/top-transactions.json
+      - ./grafana-board-transaction-details.json:/var/lib/grafana/dashboards/transaction-details.json
+    ports:
+      - "3000:3000"
